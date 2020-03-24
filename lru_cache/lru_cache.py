@@ -14,6 +14,15 @@ class LRUCache:
         self.storage = DoublyLinkedList()
         self.reference = {}
 
+    def __str__(self):
+        li = []
+        current_node = self.storage.head
+        while current_node != None:
+            li.append(current_node.value)
+            current_node = current_node.next
+        return str(li)
+        
+
     """
     Retrieves the value associated with the given key. Also
     needs to move the key-value pair to the end of the order
@@ -22,7 +31,11 @@ class LRUCache:
     key-value pair doesn't exist in the cache.
     """
     def get(self, key):
-        pass
+        if key not in self.reference:
+            return None
+        # TODO: move reference to front
+        # self.storage.move_to_front(self.reference[key])
+        return self.reference[key]
 
     """
     Adds the given key-value pair to the cache. The newly-
@@ -35,4 +48,39 @@ class LRUCache:
     the newly-specified value.
     """
     def set(self, key, value):
-        pass
+        # CASE: key is not already stored and list is not at limit
+        if key not in self.reference and self.size < self.limit:
+            self.reference.update({key: value})
+            self.storage.add_to_head((key, value))
+            self.size += 1
+
+        # CASE: key is not already stored and list IS at limit
+        if key not in self.reference and self.size == self.limit:
+            # remove data from list and dict
+            removed = self.storage.remove_from_tail()
+            self.reference.pop(removed[0])
+
+            # add data to list and dict
+            self.reference.update({key: value})
+            self.storage.add_to_head((key, value))
+        
+        # CASE: key is already stored
+        if key in self.reference:
+            self.reference.update({key: value})
+            # TODO: update node and move to head. or delete node and create new head
+            # TEMP: do it iteratively
+
+
+# c = LRUCache(limit=2)
+# c.set(1, "the number one is here")
+# print(c)
+# print(c.reference)
+# c.set(2, "exists two")
+# print(c)
+# print(c.reference)
+# c.set(3, "no, three!")
+# print(c)
+# print(c.reference)
+# c.set(4, "fooooouuuur")
+# print(c)
+# print(c.reference)
