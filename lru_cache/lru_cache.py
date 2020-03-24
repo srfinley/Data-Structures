@@ -35,6 +35,14 @@ class LRUCache:
             return None
         # TODO: move reference to front
         # self.storage.move_to_front(self.reference[key])
+        # TEMP: iterate
+        current_node = self.storage.head
+        while current_node != None:
+            if current_node.value[0] == key:
+                self.storage.delete(current_node)
+                self.storage.add_to_head((key, self.reference[key]))
+                break
+            current_node = current_node.next
         return self.reference[key]
 
     """
@@ -69,18 +77,31 @@ class LRUCache:
             self.reference.update({key: value})
             # TODO: update node and move to head. or delete node and create new head
             # TEMP: do it iteratively
+            current_node = self.storage.head
+            while current_node != None:
+                if current_node.value[0] == key:
+                    self.storage.delete(current_node)
+                    break
+                current_node = current_node.next
+            self.storage.add_to_head((key, value))
 
 
 # c = LRUCache(limit=2)
 # c.set(1, "the number one is here")
 # print(c)
-# print(c.reference)
+# print("----", c.reference)
 # c.set(2, "exists two")
 # print(c)
-# print(c.reference)
+# print("----", c.reference)
 # c.set(3, "no, three!")
 # print(c)
-# print(c.reference)
+# print("----", c.reference)
 # c.set(4, "fooooouuuur")
 # print(c)
-# print(c.reference)
+# print("----", c.reference)
+# c.set(3, "other three")
+# print(c)
+# print("----", c.reference)
+# c.get(4)
+# print(c)
+# print("----", c.reference)
