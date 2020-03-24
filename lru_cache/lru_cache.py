@@ -33,17 +33,11 @@ class LRUCache:
     def get(self, key):
         if key not in self.reference:
             return None
-        # TODO: move reference to front
-        # self.storage.move_to_front(self.reference[key])
-        # TEMP: iterate
-        current_node = self.storage.head
-        while current_node != None:
-            if current_node.value[0] == key:
-                self.storage.delete(current_node)
-                self.storage.add_to_head((key, self.reference[key]))
-                break
-            current_node = current_node.next
-        return self.reference[key]
+
+        # PERM version, O(1) time:
+        self.storage.move_to_front(self.reference[key])
+        self.reference[key] = self.storage.head
+        return self.reference[key].value[1]
 
     """
     Adds the given key-value pair to the cache. The newly-
@@ -58,8 +52,8 @@ class LRUCache:
     def set(self, key, value):
         # CASE: key is not already stored and list is not at limit
         if key not in self.reference and self.size < self.limit:
-            self.reference.update({key: value})
             self.storage.add_to_head((key, value))
+            self.reference.update({key: self.storage.head})
             self.size += 1
 
         # CASE: key is not already stored and list IS at limit
@@ -69,39 +63,14 @@ class LRUCache:
             self.reference.pop(removed[0])
 
             # add data to list and dict
-            self.reference.update({key: value})
             self.storage.add_to_head((key, value))
+            self.reference.update({key: self.storage.head})
         
         # CASE: key is already stored
         if key in self.reference:
-            self.reference.update({key: value})
-            # TODO: update node and move to head. or delete node and create new head
-            # TEMP: do it iteratively
-            current_node = self.storage.head
-            while current_node != None:
-                if current_node.value[0] == key:
-                    self.storage.delete(current_node)
-                    break
-                current_node = current_node.next
+            # PERM:
+            former = self.reference[key]
+            self.storage.delete(former)
+
             self.storage.add_to_head((key, value))
-
-
-# c = LRUCache(limit=2)
-# c.set(1, "the number one is here")
-# print(c)
-# print("----", c.reference)
-# c.set(2, "exists two")
-# print(c)
-# print("----", c.reference)
-# c.set(3, "no, three!")
-# print(c)
-# print("----", c.reference)
-# c.set(4, "fooooouuuur")
-# print(c)
-# print("----", c.reference)
-# c.set(3, "other three")
-# print(c)
-# print("----", c.reference)
-# c.get(4)
-# print(c)
-# print("----", c.reference)
+            self.reference.update({key: self.storage.head})
