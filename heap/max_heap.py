@@ -15,6 +15,11 @@ class Heap:
         self._bubble_up(len(self.storage) - 1)
 
     def delete(self):
+        removed = self.storage[0]
+        # if removing final element
+        if self.get_size() == 1:
+            self.storage = []
+            return removed
         # replace the root value with the last element
         self.storage[0] = self.storage[-1]
 
@@ -23,6 +28,7 @@ class Heap:
 
         # move it down into true position
         self._sift_down(0)
+        return removed
 
     def get_max(self):
         return self.storage[0]
