@@ -1,3 +1,5 @@
+from doubly_linked_list import DoublyLinkedList
+
 class LRUCache:
     """
     Our LRUCache class keeps track of the max number of nodes it
@@ -7,7 +9,19 @@ class LRUCache:
     to every node stored in the cache.
     """
     def __init__(self, limit=10):
-        pass
+        self.limit = limit
+        self.size = 0
+        self.storage = DoublyLinkedList()
+        self.reference = {}
+
+    def __str__(self):
+        li = []
+        current_node = self.storage.head
+        while current_node != None:
+            li.append(current_node.value)
+            current_node = current_node.next
+        return str(li)
+        
 
     """
     Retrieves the value associated with the given key. Also
@@ -17,7 +31,13 @@ class LRUCache:
     key-value pair doesn't exist in the cache.
     """
     def get(self, key):
-        pass
+        if key not in self.reference:
+            return None
+
+        # PERM version, O(1) time:
+        self.storage.move_to_front(self.reference[key])
+        self.reference[key] = self.storage.head
+        return self.reference[key].value[1]
 
     """
     Adds the given key-value pair to the cache. The newly-
@@ -30,4 +50,27 @@ class LRUCache:
     the newly-specified value.
     """
     def set(self, key, value):
-        pass
+        # CASE: key is not already stored and list is not at limit
+        if key not in self.reference and self.size < self.limit:
+            self.storage.add_to_head((key, value))
+            self.reference.update({key: self.storage.head})
+            self.size += 1
+
+        # CASE: key is not already stored and list IS at limit
+        if key not in self.reference and self.size == self.limit:
+            # remove data from list and dict
+            removed = self.storage.remove_from_tail()
+            self.reference.pop(removed[0])
+
+            # add data to list and dict
+            self.storage.add_to_head((key, value))
+            self.reference.update({key: self.storage.head})
+        
+        # CASE: key is already stored
+        if key in self.reference:
+            # PERM:
+            former = self.reference[key]
+            self.storage.delete(former)
+
+            self.storage.add_to_head((key, value))
+            self.reference.update({key: self.storage.head})
